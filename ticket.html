@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+   
+
+
+
+<h1>Ticket veiw</h1>
+<body>
+
+  <div id="demo">
+    <h2>Let AJAX change this text</h2>
+    <button type="button" onclick="loadDoc()">Change Content</button>
+  </div>
+
+  <script>
+    function loadDoc() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById("demo").innerHTML =
+          this.responseText;
+        }
+      };
+      xhttp.open("GET", "localhost:8000/about", true);
+      xhttp.send();
+    }
+    </script>
+    
+
+
+  <table id="my_table" style="border: 1px solid black;  padding: 15px; border-spacing: 5px; text-align: left; width:100%;">
+    <tr>
+      <th>Subject</th>
+      <th>Created at</th>
+      <th>requester_id</th>
+      <th>Type</th>
+    </tr>
+    <tr>
+        <td>Jill</td>
+        <td>Smith</td>
+        <td>50</td>
+        <td>50</td>
+      </tr>
+  </table>
+
+</body>
+
+
+</html>
