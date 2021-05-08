@@ -1,49 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
    
+  <head>
+    <meta charset="UTF-8">
+    <title>Ticket Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+</head>
+<h1>Ticket Viewer</h1>
 
+<script>
+  // fetch('http://localhost:8000/about').then(data=>data.text()).then(text=>console.log(text)).catch(e=>console.log(e))
+ //other way to do below 
 
-
-<h1>Ticket veiw</h1>
-<body>
-
-  <div id="demo">
-    <h2>Let AJAX change this text</h2>
-    <button type="button" onclick="loadDoc()">Change Content</button>
-  </div>
-
-  <script>
-    function loadDoc() {
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          document.getElementById("demo").innerHTML =
-          this.responseText;
-        }
-      };
-      xhttp.open("GET", "localhost:8000/about", true);
-      xhttp.send();
-    }
-    </script>
     
 
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/about');
+    xhr.send();
+    xhr.onload = function() {
+  let tickets = JSON.parse(xhr.response);
 
-  <table id="my_table" style="border: 1px solid black;  padding: 15px; border-spacing: 5px; text-align: left; width:100%;">
-    <tr>
-      <th>Subject</th>
-      <th>Created at</th>
-      <th>requester_id</th>
-      <th>Type</th>
-    </tr>
-    <tr>
-        <td>Jill</td>
-        <td>Smith</td>
-        <td>50</td>
-        <td>50</td>
-      </tr>
-  </table>
 
-</body>
+  
+  tickets = extract(tickets);
+            // function to get the peices of the json that we need , to be used once I can get the json here
+            function extract (json) {
+    let picked = []; 
+    for (var i = 0; i < json.length; i++) {
+    let subset = _.pick(json[i], ['subject', 'created_at','requester_id', 'type']);
+    picked.push(subset);
+    }
+  return picked;
+    } 
 
+  function generateTableHead(table, data) {
+let thead = table.createTHead();
+let row = thead.insertRow();
+for (let key of data) {
+  let th = document.createElement("th");
+  let text = document.createTextNode(key);
+  th.appendChild(text);
+  row.appendChild(th);
+}
+}
+
+function generateTable(table, data) {
+for (let element of data) {
+  let row = table.insertRow();
+  for (key in element) {
+    let cell = row.insertCell();
+    let text = document.createTextNode(element[key]);
+    cell.appendChild(text);
+  }
+}
+}
+
+let table = document.querySelector("table");
+let data = Object.keys(tickets[0]);
+generateTableHead(table, data);
+generateTable(table, tickets);
+};
+
+xhr.onerror = function() { // only triggers if the request couldn't be made at all THIS IS TRIGGERING 
+  alert(`Network Error`);
+};          
+
+
+
+  </script>
+
+
+<body>
+
+     <table style="border: 1px solid black;  padding: 15px; border-spacing: 5px; text-align: left; width:100%;">
+      <!-- here goes our data! -->
+      </table>
+    </body>
+
+    <!-- <p id="demo"></p>
+<script> 
+
+
+
+// test making a table with JS 
+let mountains = [
+{ name: "Monte Falco", height: 1658, place: "Parco Foreste Casentinesi" },
+{ name: "Monte Falterona", height: 1654, place: "Parco Foreste Casentinesi" },
+{ name: "Poggio Scali", height: 1520, place: "Parco Foreste Casentinesi" },
+{ name: "Pratomagno", height: 1592, place: "Parco Foreste Casentinesi" },
+{ name: "Monte Amiata", height: 1738, place: "Siena" }
+];
+
+</script> -->
 
 </html>
+
+<!-- <script>
+
+                 </script> -->
