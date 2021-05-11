@@ -8,23 +8,42 @@
 </head>
 <h1>Ticket Viewer</h1>
 
+<body>
+
+  <table style="border: 1px solid black;  padding: 15px; border-spacing: 5px; text-align: left; width:100%;">
+   <!-- here goes our data! -->
+   </table>
+   <!-- setting up pages -->
+   <button  id="btn_prev">Prev</button>
+   <button onclick="next()" id="btn_next">Next</button>
+ 
+
+ </body>
+
+
 <script>
-  // fetch('http://localhost:8000/about').then(data=>data.text()).then(text=>console.log(text)).catch(e=>console.log(e))
- //other way to do below 
+  var current_page = 1;
+  var nextLink = ""; 
+  var prevLink = ""; 
+  var more = "";
 
-    
-
+    function myScript() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/about');
     xhr.send();
-    xhr.onload = function() {
-  let tickets = JSON.parse(xhr.response);
+    xhr.onload = ticketsTable; 
+    }
 
+    function ticketsTable() {
+    let info = JSON.parse(this.response);
+    nextLink = info.links.next; 
+    prevLink = info.links.prev; 
+    more = info.meta.has_more; 
+    info = info.tickets;
+    info = extract(info);
 
-  
-  tickets = extract(tickets);
             // function to get the peices of the json that we need , to be used once I can get the json here
-            function extract (json) {
+ function extract (json) {
     let picked = []; 
     for (var i = 0; i < json.length; i++) {
     let subset = _.pick(json[i], ['subject', 'created_at','requester_id', 'type']);
@@ -32,18 +51,17 @@
     }
   return picked;
     } 
-
+ 
   function generateTableHead(table, data) {
-let thead = table.createTHead();
-let row = thead.insertRow();
-for (let key of data) {
+  let thead = table.createTHead();
+  let row = thead.insertRow();
+  for (let key of data) {
   let th = document.createElement("th");
   let text = document.createTextNode(key);
   th.appendChild(text);
   row.appendChild(th);
 }
 }
-
 function generateTable(table, data) {
 for (let element of data) {
   let row = table.insertRow();
@@ -54,47 +72,43 @@ for (let element of data) {
   }
 }
 }
-
 let table = document.querySelector("table");
-let data = Object.keys(tickets[0]);
+let data = Object.keys(info[0]);
 generateTableHead(table, data);
-generateTable(table, tickets);
-};
+generateTable(table, info);
+    }; 
+    
+myScript(); 
 
-xhr.onerror = function() { // only triggers if the request couldn't be made at all THIS IS TRIGGERING 
+// pagiation
+
+if (current_page == 1) {
+    btn_prev.style.visibility = "hidden";
+} else {
+    btn_prev.style.visibility = "visible";
+}
+// const btnp = document.querySelector('btn_prev');
+// btnp.onclick = function ()
+// {
+// if (current_page > 1) {
+// current_page--;
+// changePage(current_page);
+// // }
+// }
+ function next(){
+  var xh = new XMLHttpRequest();
+    xh.open('GET', '/page?page=' + nextLink);
+    xh.send();
+    xh.onload =  ticketsTable; 
+    current_page++;
+    if (current_page == 1) {
+    btn_prev.style.visibility = "hidden";
+} else {
+    btn_prev.style.visibility = "visible";
+}
+}
+
+xhr.onerror = function() { // only triggers if the request couldn't be made at all
   alert(`Network Error`);
-};          
-
-
-
-  </script>
-
-
-<body>
-
-     <table style="border: 1px solid black;  padding: 15px; border-spacing: 5px; text-align: left; width:100%;">
-      <!-- here goes our data! -->
-      </table>
-    </body>
-
-    <!-- <p id="demo"></p>
-<script> 
-
-
-
-// test making a table with JS 
-let mountains = [
-{ name: "Monte Falco", height: 1658, place: "Parco Foreste Casentinesi" },
-{ name: "Monte Falterona", height: 1654, place: "Parco Foreste Casentinesi" },
-{ name: "Poggio Scali", height: 1520, place: "Parco Foreste Casentinesi" },
-{ name: "Pratomagno", height: 1592, place: "Parco Foreste Casentinesi" },
-{ name: "Monte Amiata", height: 1738, place: "Siena" }
-];
-
-</script> -->
-
-</html>
-
-<!-- <script>
-
-                 </script> -->
+};        
+</script>

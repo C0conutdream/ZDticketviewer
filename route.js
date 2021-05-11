@@ -25,6 +25,7 @@ module.exports = {
             'Content-Type': 'text/html'
         });
         let path = url.parse(request.url).pathname;
+        console.log(path);
         
         switch (path) {
             case '/':
@@ -33,11 +34,11 @@ module.exports = {
             case '/about':
                 const options = {
                     hostname: 'maddythedietitian.zendesk.com', 
-                    path: '/api/v2/tickets',
+                    path: '/api/v2/tickets.json?page[size]=25',
                     method: 'GET',
                     headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Basic bWFkZGlzb24uaXBwb2xpdG9AZ21haWwuY29tOkFnZW9ma2luZ3M3Jg=='
+                    'Authorization': 'Basic bWFkZGlzb24uaXBwb2xpdG9AZ21haWwuY29tOkFnZW9ma2luZ3M3Jg==',
                     },
                 }
                 const req = https.request(options,(res) => {
@@ -49,22 +50,53 @@ module.exports = {
                     //changingjson to an object for readability 
                     let json = JSON.parse(body);
                     // getting rid of non ticket information 
-                    json = json.tickets;
                     var myJSON = JSON.stringify(json);
                     response.write(myJSON);
                     response.end();
                   });
                 });
-
-       
-                
+        
                 req.on('error', (e) => {
                 console.error(`problem with request: ${e.message}`);
                   });
                 req.end()
-
-
                 break; 
+
+                case '/page':
+                    let queryObject = url.parse(request.url).query;
+                    let l = queryObject.length; 
+                    queryObject =  queryObject.slice(5, l);
+                    console.log(queryObject); 
+                    const pageOptions = {
+                        method: 'GET',
+                        headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic bWFkZGlzb24uaXBwb2xpdG9AZ21haWwuY29tOkFnZW9ma2luZ3M3Jg==',
+                        },
+                    }
+                    const pageReq = https.request(queryObject ,pageOptions,(res) => {
+                        let body = "";
+                    res.on('data', (chunk) => {
+                        body += chunk;
+                      });
+                      res.on('end', () => {
+                        //changingjson to an object for readability 
+                        let json = JSON.parse(body);
+                        // getting rid of non ticket information 
+                        var myJSON = JSON.stringify(json);
+                        response.write(myJSON);
+                        response.end();
+                      });
+                    });
+                    pageReq.on('error', (e) => {
+                        console.error(`problem with request: ${e.message}`);
+                          });
+                        pageReq.end()
+                        break; 
+
+
+
+
                 default:
                 response.writeHead(404);
                 response.write('Route not found');
@@ -73,6 +105,3 @@ module.exports = {
     }
 }
 
-function getTickets(){    
-   
-        return picked;    }
