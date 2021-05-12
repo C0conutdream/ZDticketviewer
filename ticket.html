@@ -1,114 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
    
-  <head>
+<head>
     <meta charset="UTF-8">
     <title>Ticket Viewer</title>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
 </head>
+
 <h1>Ticket Viewer</h1>
 
 <body>
 
-  <table style="border: 1px solid black;  padding: 15px; border-spacing: 5px; text-align: left; width:100%;">
-   <!-- here goes our data! -->
+  <table id="table" style="border: 1px solid black;  padding: 15px; border-spacing: 5px; text-align: left; width:100%;">
    </table>
-   <!-- setting up pages -->
-   <button  id="btn_prev">Prev</button>
+   <button  onclick="prev()" id="btn_prev">Prev</button>
    <button onclick="next()" id="btn_next">Next</button>
- 
-
  </body>
 
-
 <script>
-  var current_page = 1;
-  var nextLink = ""; 
-  var prevLink = ""; 
-  var more = "";
+  let current_page = 1;
+  let nextLink = ""; 
+  let prevLink = ""; 
+  let more = "";
+  
+  myScript(); 
 
     function myScript() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/about');
     xhr.send();
     xhr.onload = ticketsTable; 
+      xhr.onerror = function() {
+      alert(`Error retrieving tickets`);
+      };    
     }
+
+    function extract (info) {
+        let picked = []; 
+        for (var i = 0; i < info.length; i++) {
+          let subset = _.pick(info[i], ['subject', 'created_at','requester_id', 'type']);
+          picked.push(subset);
+        }
+        return picked;
+     } 
+
+     function generateTableHead(table, data) {
+        let thead = table.createTHead();
+        let row = thead.insertRow();
+        for (let key of data) {
+          let th = document.createElement("th");
+          let text = document.createTextNode(key);
+          th.appendChild(text);
+          row.appendChild(th);
+        }
+      } 
+      function generateTable(table, data) {
+        for (let element of data) {
+        let row = table.insertRow();
+          for (key in element) {
+            let cell = row.insertCell();
+            let text = document.createTextNode(element[key]);
+            cell.appendChild(text);
+          }
+        }
+      }
 
     function ticketsTable() {
-    let info = JSON.parse(this.response);
-    nextLink = info.links.next; 
-    prevLink = info.links.prev; 
-    more = info.meta.has_more; 
-    info = info.tickets;
-    info = extract(info);
+      let info = JSON.parse(this.response);
+      nextLink = info.links.next; 
+      prevLink = info.links.prev; 
+      more = info.meta.has_more; 
+      info = info.tickets;
+      info = extract(info);
+  
+    let table = document.querySelector("table");
+    let data = Object.keys(info[0]);
+    generateTableHead(table, data);
+    generateTable(table, info);
+    buttonVisiblity();
+    }; 
+  
 
-            // function to get the peices of the json that we need , to be used once I can get the json here
- function extract (json) {
-    let picked = []; 
-    for (var i = 0; i < json.length; i++) {
-    let subset = _.pick(json[i], ['subject', 'created_at','requester_id', 'type']);
-    picked.push(subset);
+function buttonVisiblity(){
+  if (current_page == 1 ) {
+    btn_prev.style.visibility = "hidden";
+  } else {
+      btn_prev.style.visibility = "visible";
+      if (more == false){
+        btn_next.style.visibility = "hidden";
+      }
     }
-  return picked;
-    } 
- 
-  function generateTableHead(table, data) {
-  let thead = table.createTHead();
-  let row = thead.insertRow();
-  for (let key of data) {
-  let th = document.createElement("th");
-  let text = document.createTextNode(key);
-  th.appendChild(text);
-  row.appendChild(th);
 }
-}
-function generateTable(table, data) {
-for (let element of data) {
-  let row = table.insertRow();
-  for (key in element) {
-    let cell = row.insertCell();
-    let text = document.createTextNode(element[key]);
-    cell.appendChild(text);
+
+function deleteTable(){
+  var table = document.getElementById("table");
+  table.deleteTHead();
+  for(var i = table.rows.length - 1; i > 0; i--){
+    table.deleteRow(i);
   }
 }
-}
-let table = document.querySelector("table");
-let data = Object.keys(info[0]);
-generateTableHead(table, data);
-generateTable(table, info);
-    }; 
-    
-myScript(); 
 
-// pagiation
-
-if (current_page == 1) {
-    btn_prev.style.visibility = "hidden";
-} else {
-    btn_prev.style.visibility = "visible";
-}
-// const btnp = document.querySelector('btn_prev');
-// btnp.onclick = function ()
-// {
-// if (current_page > 1) {
-// current_page--;
-// changePage(current_page);
-// // }
-// }
- function next(){
-  var xh = new XMLHttpRequest();
+function next(){
+  if (more == true){
+    deleteTable();
+    var xh = new XMLHttpRequest();
     xh.open('GET', '/page?page=' + nextLink);
     xh.send();
     xh.onload =  ticketsTable; 
+    xh.onerror = function() {
+      alert(`Error retrieving tickets`);
+      };   
     current_page++;
-    if (current_page == 1) {
-    btn_prev.style.visibility = "hidden";
-} else {
-    btn_prev.style.visibility = "visible";
-}
-}
+  }
+ }
 
-xhr.onerror = function() { // only triggers if the request couldn't be made at all
-  alert(`Network Error`);
-};        
+function prev(){
+  deleteTable();
+  var xh = new XMLHttpRequest();
+  xh.open('GET', '/page?page=' + prevLink);
+  xh.send();
+  xh.onload = ticketsTable; 
+  xh.onerror = function() {
+      alert(`Error retrieving tickets`);
+      };   
+  current_page--;
+}
 </script>

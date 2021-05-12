@@ -1,10 +1,7 @@
 
-// let http = require('http');
-// let https = require('https');
 const url = require('url');
 let fs = require('fs');
 let https = require('https');
-
 
 html = {
     render(path, response) {
@@ -25,8 +22,6 @@ module.exports = {
             'Content-Type': 'text/html'
         });
         let path = url.parse(request.url).pathname;
-        console.log(path);
-        
         switch (path) {
             case '/':
                 html.render('./ticket.html', response);
@@ -47,17 +42,13 @@ module.exports = {
                     body += chunk;
                   });
                   res.on('end', () => {
-                    //changingjson to an object for readability 
-                    let json = JSON.parse(body);
-                    // getting rid of non ticket information 
-                    var myJSON = JSON.stringify(json);
-                    response.write(myJSON);
+                    response.write(body);
                     response.end();
                   });
                 });
         
                 req.on('error', (e) => {
-                console.error(`problem with request: ${e.message}`);
+                    response.write(`problem with request: ${e.message}`);
                   });
                 req.end()
                 break; 
@@ -66,7 +57,6 @@ module.exports = {
                     let queryObject = url.parse(request.url).query;
                     let l = queryObject.length; 
                     queryObject =  queryObject.slice(5, l);
-                    console.log(queryObject); 
                     const pageOptions = {
                         method: 'GET',
                         headers: {
@@ -80,11 +70,8 @@ module.exports = {
                         body += chunk;
                       });
                       res.on('end', () => {
-                        //changingjson to an object for readability 
-                        let json = JSON.parse(body);
-                        // getting rid of non ticket information 
-                        var myJSON = JSON.stringify(json);
-                        response.write(myJSON);
+                        response.write(body);
+                        
                         response.end();
                       });
                     });
@@ -93,9 +80,6 @@ module.exports = {
                           });
                         pageReq.end()
                         break; 
-
-
-
 
                 default:
                 response.writeHead(404);
