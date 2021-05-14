@@ -33,7 +33,7 @@ module.exports = {
                     method: 'GET',
                     headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Basic bWFkZGlzb24uaXBwb2xpdG9AZ21haWwuY29tOkFnZW9ma2luZ3M3Jg==',
+                    'Authorization': 'Basic ############',
                     },
                 }
                 const req = https.request(options,(res) => {
@@ -61,7 +61,7 @@ module.exports = {
                         method: 'GET',
                         headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Basic bWFkZGlzb24uaXBwb2xpdG9AZ21haWwuY29tOkFnZW9ma2luZ3M3Jg==',
+                        'Authorization': 'Basic #######',
                         },
                     }
                     const pageReq = https.request(queryObject ,pageOptions,(res) => {
@@ -88,4 +88,3 @@ module.exports = {
         }   
     }
 }
-
