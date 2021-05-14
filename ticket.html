@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Ticket Viewer</title>
-    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.15/lodash.min.js"></script>
 </head>
 
 <h1>Ticket Viewer</h1>
@@ -18,14 +18,14 @@
  </body>
 
 <script>
-  let current_page = 1;
+  let currentPage = 1;
   let nextLink = ""; 
   let prevLink = ""; 
   let more = "";
   
-  myScript(); 
+  getTickets(); 
 
-    function myScript() {
+    function getTickets() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/about');
     xhr.send();
@@ -35,7 +35,7 @@
       };    
     }
 
-    function extract (info) {
+    function extract(info) {
         let picked = []; 
         for (var i = 0; i < info.length; i++) {
           let subset = _.pick(info[i], ['subject', 'created_at','requester_id', 'type']);
@@ -82,7 +82,7 @@
   
 
 function buttonVisiblity(){
-  if (current_page == 1 ) {
+  if (currentPage == 1 ) {
     btn_prev.style.visibility = "hidden";
   } else {
       btn_prev.style.visibility = "visible";
@@ -110,7 +110,7 @@ function next(){
     xh.onerror = function() {
       alert(`Error retrieving tickets`);
       };   
-    current_page++;
+    currentPage++;
   }
  }
 
@@ -123,6 +123,6 @@ function prev(){
   xh.onerror = function() {
       alert(`Error retrieving tickets`);
       };   
-  current_page--;
+  currentPage--;
 }
 </script>
